@@ -8,6 +8,7 @@ cnx = sqlite3.connect('cities.db')
 
 df = pd.read_sql_query("SELECT * FROM cities", cnx)
 print(df.iloc[0])
+#
 
 
 overpass_url = 'http://overpass-api.de/api/interpreter'
