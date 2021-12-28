@@ -19,6 +19,7 @@ def main():
     building = [x for x in address if x != city.lower().title() and x != street][0]
     street = street.lower().title()
 
+    # КАЧАЕМ XML
     # url = f"https://overpass-api.de/api/map?bbox=" \
     #       f"{west},{south},{east},{north}"
     # print('Делаем запрос')
@@ -40,7 +41,7 @@ def setup_and_parse(args):
 
 
 def find_city(values):
-    conn = sqlite3.connect(os.getcwd()[:-3] + r'db\cities.db')
+    conn = sqlite3.connect(os.path.abspath(__file__)[:-11] + r'db\cities.db')
     cursor = conn.cursor()
     for value in values:
         cursor.execute(f'SELECT * FROM cities WHERE city="{value.lower().title()}"')
