@@ -3,7 +3,7 @@ import argparse
 import sqlite3
 import os
 import requests
-import mongita
+from pymongo import MongoClient
 import re
 from xml_parser import Parser
 
@@ -28,10 +28,34 @@ def main():
                 building = value
             else:
                 street = value
-    building = [x for x in address if x != city.lower().title() and x != street][0]
+    building = building.lower().title()
     street = street.lower().title()
-    if not os.path.isdir(os.path.abspath(__file__)[:-11] + f'db-mongita\\{city}'):
+    if city not in MongoClient('localhost', 27017).list_database_names():
         create_city_db(city, east, west, north, south)
+    address = find_address(city, street, building)
+    if not address:
+        print('Адрес не найден.')
+        sys.exit(-2)
+    if len(address) > 1:
+        print('TODO: найдено несколько адресов.')
+        sys.exit(-3)
+    full_street, housenumber, lat, lon = parse_answer(address[0])
+    print(f'Адрес: {region}, {city}, {full_street} {housenumber}.')
+    print(f'Координаты: ({lat}, {lon}).')
+
+
+def parse_answer(answer):
+    nodes = answer['nodes']
+    lat = []
+    lon = []
+    if len(nodes) == 0:
+        return answer['addr:street'], answer['addr:housenumber'], None, None
+    for node in nodes:
+        lat.append(float(node[0]))
+        lon.append(float(node[1]))
+    lat = round(sum(lat)/len(lat), 7)
+    lon = round(sum(lon) / len(lon), 7)
+    return answer['addr:street'], answer['addr:housenumber'], lat, lon
 
 
 def find_address(city, street, building):
@@ -42,10 +66,15 @@ def find_address(city, street, building):
             street = part2
         else:
             street = part1
-    path = os.path.abspath(__file__)[:-11] + f'db-mongita\\{city}'
-    client = mongita.MongitaClientDisk(host=path)
-    ways = client.db.ways
-    cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': 'Валовая улица'})
+    client = MongoClient('localhost', 27017)
+    ways = client[city]['ways']
+    cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': re.compile(rf'.*?{street}.*?')})
+    answer = []
+    for c in cursor:
+        answer.append(c)
+    if len(answer) == 0:
+        return None
+    return answer
 
 
 def create_city_db(city, east, west, north, south):
@@ -61,7 +90,7 @@ def download_city_xml(city, east, west, north, south):
     print('Делаем запрос')
     response = requests.get(url, stream=True)
     print('Ответ получен. Скачиваем файл')
-    with open(f"{city}.xml", 'wb') as f:
+    with open(os.path.abspath(__file__)[:-11] + f'xml\\{city}.xml', 'wb') as f:
         for chunk in response.iter_content(chunk_size=10 * 1024 * 1024):
             if chunk:
                 f.write(chunk)
