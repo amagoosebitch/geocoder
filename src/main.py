@@ -20,7 +20,7 @@ def main():
               and not any(char.isdigit() for char in x)][0]
     regex = re.compile(r"(\d+?.*?)(\w{0,1}$)")
     for value in address:
-        if value == street:
+        if value == city:
             continue
         else:
             match = re.match(regex, value)
@@ -69,15 +69,15 @@ def find_address(city, street, building):
         else:
             street = part1
     client = MongitaClientDisk(os.path.abspath(__file__)[:-11] + f'db-mongita\\{city}')
-    ways = client[city]['ways']
+    ways = client.db.ways
     for extra in to_del:
         current_street1 = street + ' ' + extra
         current_street2 = extra + ' ' + street
-        cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': f'{current_street1}'})
+        cursor = ways.find({'addr:housenumber': building, 'addr:street': current_street1})
         for c in cursor:
             answer.append(c)
         if len(answer) == 0:
-            cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': f'{current_street2}'})
+            cursor = ways.find({'addr:housenumber': building, 'addr:street': current_street2})
             for c in cursor:
                 answer.append(c)
             if len(answer) == 0:
