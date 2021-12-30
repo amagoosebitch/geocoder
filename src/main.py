@@ -3,7 +3,7 @@ import argparse
 import sqlite3
 import os
 import requests
-from pymongo import MongoClient
+from mongita import MongitaClientDisk
 import re
 from xml_parser import Parser
 
@@ -30,7 +30,8 @@ def main():
                 street = value
     building = building.lower().title()
     street = street.lower().title()
-    if city not in MongoClient('localhost', 27017).list_database_names():
+    path = os.path.abspath(__file__)[:-11] + f'db-mongita\\{city}'
+    if not os.path.exists(path) or len(os.listdir(path)) == 0:
         create_city_db(city, east, west, north, south)
     address = find_address(city, street, building)
     if not address:
@@ -59,22 +60,33 @@ def parse_answer(answer):
 
 
 def find_address(city, street, building):
-    to_del = ['Улица', 'Проспект', 'Бульвар', 'Аллея', 'Переулок', 'Тракт', 'Набережная']
+    answer = []
+    to_del = ['улица', 'проспект', 'бульвар', 'аллея', 'переулок', 'тракт', 'набережная']
     if ' ' in street:
         part1, part2 = street.split()
         if part1 in to_del:
             street = part2
         else:
             street = part1
-    client = MongoClient('localhost', 27017)
+    client = MongitaClientDisk(os.path.abspath(__file__)[:-11] + f'db-mongita\\{city}')
     ways = client[city]['ways']
-    cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': re.compile(rf'.*?{street}.*?')})
-    answer = []
-    for c in cursor:
-        answer.append(c)
-    if len(answer) == 0:
-        return None
-    return answer
+    for extra in to_del:
+        current_street1 = street + ' ' + extra
+        current_street2 = extra + ' ' + street
+        cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': f'{current_street1}'})
+        for c in cursor:
+            answer.append(c)
+        if len(answer) == 0:
+            cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': f'{current_street2}'})
+            for c in cursor:
+                answer.append(c)
+            if len(answer) == 0:
+                continue
+            else:
+                return answer
+        else:
+            return answer
+    return None
 
 
 def create_city_db(city, east, west, north, south):
