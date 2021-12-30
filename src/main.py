@@ -92,8 +92,10 @@ def find_address(city, street, building):
 def create_city_db(city, east, west, north, south):
     if not os.path.isfile(os.path.abspath(__file__)[:-11] + f'xml\\{city}.xml'):
         download_city_xml(city, east, west, north, south)
+    print('Создаем базу данных города.')
     parser = Parser(city)
     parser.parse()
+    print('База данных успешно создана.')
 
 
 def download_city_xml(city, east, west, north, south):
@@ -101,7 +103,7 @@ def download_city_xml(city, east, west, north, south):
           f"{west},{south},{east},{north}"
     print('Делаем запрос')
     response = requests.get(url, stream=True)
-    print('Ответ получен. Скачиваем файл')
+    print('Ответ получен. Скачиваем xml файл')
     with open(os.path.abspath(__file__)[:-11] + f'xml\\{city}.xml', 'wb') as f:
         for chunk in response.iter_content(chunk_size=10 * 1024 * 1024):
             if chunk:
