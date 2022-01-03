@@ -1,7 +1,7 @@
 import os
+from pathlib import Path
 from xml.etree import ElementTree
-from mongita import MongitaClientDisk
-#from pymongo import MongoClient
+from pymongo import MongoClient
 
 NODES_COUNT = 200000
 WAYS_COUNT = 100000
@@ -10,11 +10,8 @@ RELATIONS_COUNT = 100000
 
 class Parser:
     def __init__(self, city):
-        path = os.path.abspath(__file__)[:-17] + f'db-mongita\\{city}'
-        if not os.path.exists(path):
-            os.makedirs(path)
-        client = MongitaClientDisk(path)
-        db = client['db']
+        client = MongoClient('localhost', 27017)
+        db = client[city]
         self.ways = db['ways']
         self.nodes = db['nodes']
         self.city_file = city + '.xml'
@@ -25,7 +22,7 @@ class Parser:
         self.ways_coordinates = {}
 
     def parse(self):
-        tree = ElementTree.iterparse(os.path.abspath(__file__)[:-17] + f'xml\\{self.city_file}')
+        tree = ElementTree.iterparse(os.path.join(Path(__file__).parent.parent, f'xml/{self.city_file}'))
         for _, element in tree:
             if element.tag == 'node':
                 self.parse_node(element)

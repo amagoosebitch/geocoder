@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import re
 import sqlite3
 import pandas as pd
 import json
@@ -27,7 +26,7 @@ def overpass_request(city):
             answer.append((data[i]['tags']['addr:region'], bb))
         except KeyError:
             try:
-                is_Krym = data[i]['tags']['wikipedia']
+                is_Krym = data[i]['tags']['wikipedia']  # у городов Крыма нет тега региона, проверка идет отдельно
                 answer.append(('Крым', bb))
             except KeyError:
                 answer.append((None, bb))
@@ -57,7 +56,7 @@ def get_wikipedia_cities_table():
     return table[table.find('1'):].split('\n')[:-1]
 
 
-def fulfill_database(table):
+def fill_database(table):
     conn, cursor = create_database()
     for row in table:
         city, wiki_region = row.split('  ')[1:3]
@@ -75,7 +74,7 @@ def fulfill_database(table):
 
 
 def make_cities_db():
-    fulfill_database(get_wikipedia_cities_table())
+    fill_database(get_wikipedia_cities_table())
 
 
 if __name__ == '__main__':
