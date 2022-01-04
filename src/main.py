@@ -8,7 +8,7 @@ DICTIONARY = enchant.Dict('ru_RU')
 
 
 def main():
-    address = setup_and_parse(sys.argv[1:]).geocode
+    address = setup_parser(sys.argv[1:]).geocode
     if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
         mongodb_connect()
     city_info, initial_city = find_city(address)
@@ -37,11 +37,12 @@ def parse_answer(answer):
     return answer['addr:street'], answer['addr:housenumber'], lat, lon
 
 
-def setup_and_parse(args):
+def setup_parser(args):
     parser = argparse.ArgumentParser()
     parser.add_argument('-g', '--geocode', nargs=3, type=str, required=False, metavar=('city', 'street', 'building'),
                         help='Показывает координаты здания и полный адрес по указанному адресу')
     result = parser.parse_args(args)
+    print(result)
     return result
 
 
