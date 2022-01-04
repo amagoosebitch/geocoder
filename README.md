@@ -13,6 +13,11 @@
 * установка `requirements.txt`
 * установка MongoDB (записать путь к файлу mongod.exe в файл `config/config.txt`)
     * https://www.mongodb.com/try/download/community (установить complete версию)
+* установка русского словаря pyenchant  
+>Файлы словаря "ru_RU.dic" и "ru_RU.aff" можно взять из офисных пакетов openoffice и libreoffice.
+>Их необходимо скопировать в папку 
+
+`..Python36/Lib/site-packages/enchant/share/enchant/myspell`
 # Состав
 * `config`: папка. где хранится конфигурационный файл с путем до mongod.exe
 
@@ -21,6 +26,10 @@
 * `src\main.py`: основной скрипт
 
 * `src\xml_parser`: скрипт по преобразованию xml файла города в MongoDB
+
+* `src\tools` : набор функций, необходимый для работы программы
+
+* `src\input_parser.py`: набо функций, отвечающий за парсинг ввода
 # Работа скрипта
 ```
 python src\main.py -g [адрес в свободной форме]
