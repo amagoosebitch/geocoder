@@ -22,14 +22,12 @@ def overpass_request(city):
         return [(None, None)]
     for i in range(len(data)):
         bb = data[i]['bounds']
-        try:
+        if 'add:region' in data[i]['tags'].keys():
             answer.append((data[i]['tags']['addr:region'], bb))
-        except KeyError:
-            try:
-                is_Krym = data[i]['tags']['wikipedia']  # у городов Крыма нет тега региона, проверка идет отдельно
-                answer.append(('Крым', bb))
-            except KeyError:
-                answer.append((None, bb))
+        elif 'wikipedia' in data[i]['tags']:
+            answer.append(('Крым', bb))
+        else:
+            answer.append((None, bb))
     return answer
 
 
