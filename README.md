@@ -17,7 +17,7 @@
 >Файлы словаря "ru_RU.dic" и "ru_RU.aff" можно взять из офисных пакетов openoffice и libreoffice.
 >Их необходимо скопировать в папку 
 
-`..Python36/Lib/site-packages/enchant/share/enchant/myspell`
+`..Lib/site-packages/enchant/share/enchant/myspell`
 # Состав
 * `config`: папка. где хранится конфигурационный файл с путем до mongod.exe
 
