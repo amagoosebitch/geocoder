@@ -9,19 +9,6 @@ import re
 from collections import Counter
 
 
-def find_city(values):
-    conn = sqlite3.connect(os.path.join(Path(__file__).parent.parent, r'db\cities.db'))
-    cursor = conn.cursor()
-    for value in values:
-        value = value.lower().title()
-        cursor.execute(f'SELECT * FROM cities WHERE city="{value}"')
-        found_value = cursor.fetchone()
-        if found_value:
-            return found_value, value
-    print('Такого города нет в базе данных городов России.')
-    sys.exit(-1)
-
-
 def download_city_xml(city, east, west, north, south):
     url = f"https://overpass-api.de/api/map?bbox=" \
           f"{west},{south},{east},{north}"
@@ -45,7 +32,8 @@ def create_city_db(city, east, west, north, south):
 
 
 def find_address(city, street, building):
-    to_del = ['Улица', 'Проспект', 'Бульвар', 'Аллея', 'Переулок', 'Тракт', 'Набережная']
+    print(city, street, building)
+    to_del = ['Улица', 'Проспект', 'Бульвар', 'Аллея', 'Переулок', 'Тракт', 'Набережная', 'Линия']
     if ' ' in street:
         part1, part2 = street.split()
         if part1 in to_del:
@@ -87,17 +75,3 @@ def remove_duplicates(addresses):
         all_nodes = sum([x['nodes'] for x in all_dicts], [])
         answer.append({'addr:street': street, 'addr:housenumber': all_dicts[0]['addr:housenumber'], 'nodes': all_nodes})
     return answer
-
-
-def find_street_building(address, initial_city):
-    regex = re.compile(r'(\d+?.*?)(\w{0,1}$)')
-    for value in address:
-        value = value.lower().title()
-        if value == initial_city:
-            continue
-        match = re.match(regex, value)
-        if match:
-            building = value
-        else:
-            street = value
-    return street, building
