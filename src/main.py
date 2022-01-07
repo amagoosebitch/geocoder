@@ -5,10 +5,14 @@ from input_parser import InputParser
 
 
 def main():
-    #address = setup_parser(sys.argv[1:]).geocode
-    address = ['Первомайская', '04Б', 'Электросталь']
-    address_without_commas = [x.replace(',', '') for x in address]
-    input_parser = InputParser(address_without_commas, ' '.join(address))
+    splitted_address = setup_parser(sys.argv[1:]).geocode
+    #splitted_address = ['Кораблестроителей', 'д.35', 'к.1', 'лит.В', 'Санкт-Петербург']
+    address_without_commas = []
+    for address in splitted_address:
+        without_dot = address.split('.')
+        for inner_address in without_dot:
+            address_without_commas.append(inner_address.replace(',', ''))
+    input_parser = InputParser(address_without_commas, ' '.join(splitted_address))
     if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
         mongodb_connect()
 
