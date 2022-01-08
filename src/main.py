@@ -5,8 +5,8 @@ from input_parser import InputParser
 
 
 def main():
-    splitted_address = setup_parser(sys.argv[1:]).geocode
-    #splitted_address = ['Кораблестроителей', 'д.35', 'к.1', 'лит.В', 'Санкт-Петербург']
+    # splitted_address = setup_parser(sys.argv[1:]).geocode
+    splitted_address = ['Кораблестроителей', 'Санкт-Петербург', 'дом', '35', 'корпус', '1', 'литера', 'В']
     address_without_commas = []
     for address in splitted_address:
         without_dot = address.split('.')

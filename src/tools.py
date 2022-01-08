@@ -7,6 +7,7 @@ from xml_parser import Parser
 from pymongo import MongoClient
 import re
 from collections import Counter
+from prefixes_class import Prefixes
 
 
 def download_city_xml(city, east, west, north, south):
@@ -33,7 +34,8 @@ def create_city_db(city, east, west, north, south):
 
 def find_address(city, street, building):
     print(city, street, building)
-    to_del = ['Улица', 'Проспект', 'Бульвар', 'Аллея', 'Переулок', 'Тракт', 'Набережная', 'Линия']
+    prefixes_class = Prefixes()
+    to_del = prefixes_class.street_prefixes[:8]
     if ' ' in street:
         part1, part2 = street.split()
         if part1 in to_del:
