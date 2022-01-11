@@ -2,6 +2,7 @@ import argparse
 import psutil
 from tools import *
 from input_parser import InputParser
+from subprocess import call
 
 
 def main():
@@ -13,6 +14,9 @@ def main():
         for inner_address in without_dot:
             address_without_commas.append(inner_address.replace(',', ''))
     input_parser = InputParser(address_without_commas, ' '.join(splitted_address))
+
+    call("sudo docker run --rm --name mongodb -d -p 27017:27017 mongo".split())
+
     # if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
     #     mongodb_connect()
 
