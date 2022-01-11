@@ -13,8 +13,8 @@ def main():
         for inner_address in without_dot:
             address_without_commas.append(inner_address.replace(',', ''))
     input_parser = InputParser(address_without_commas, ' '.join(splitted_address))
-    if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
-        mongodb_connect()
+    # if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
+    #     mongodb_connect()
 
     city_info, initial_city = input_parser.find_city(address_without_commas)
     input_parser.set_city(initial_city)
