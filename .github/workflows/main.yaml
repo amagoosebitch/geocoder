@@ -27,10 +27,14 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+<<<<<<< HEAD
         pytest tests/argument_parser_tests.py
+=======
+        python3 -m pytest tests/argument_parser_tests.py
+>>>>>>> e64abc65591b2ac5840325e48a82fd6ddd6ccb8c
     - name: Check coverage
       run: |
-        pytest --cov=src --cov-report html:cov_html
+        python3 -m pytest tests/argument_parser_tests.py --cov=src --cov-report html:cov_html
     - name: Upload pytest-cov test results
       uses: actions/upload-artifact@v2
       with:
