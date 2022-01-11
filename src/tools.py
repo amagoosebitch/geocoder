@@ -3,11 +3,10 @@ import os
 from pathlib import Path
 import sys
 import requests
-from xml_parser import Parser
+from src.xml_parser import Parser
 from pymongo import MongoClient
 import re
 from collections import Counter
-from prefixes_class import Prefixes
 
 
 def download_city_xml(city, east, west, north, south):
@@ -34,14 +33,6 @@ def create_city_db(city, east, west, north, south):
 
 def find_address(city, street, building):
     print(city, street, building)
-    prefixes_class = Prefixes()
-    to_del = prefixes_class.street_prefixes[:8]
-    if ' ' in street:
-        part1, part2 = street.split()
-        if part1 in to_del:
-            street = part2
-        else:
-            street = part1
     client = MongoClient('localhost', 27017)
     ways = client[city]['ways']
     cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': re.compile(rf'.*?{street}.*?')})

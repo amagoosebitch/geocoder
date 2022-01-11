@@ -1,24 +1,36 @@
-from tools import *
-from prefixes_class import Prefixes
+from src.tools import *
+from src.prefixes_class import Prefixes
 from pathlib import Path
 
 
 class InputParser:
     def __init__(self, values, string_to_parse):
         self.string_to_parse = string_to_parse
-        self.info = values.copy()
-        self.dynamic_info = values.copy()
+        self.info = InputParser.normalize_parts(values)
+        self.dynamic_info = InputParser.normalize_parts(values)
         self.city = ''
         self.street = ''
         self.building = ''
         self.prefixes_class = Prefixes()
 
+    @staticmethod
+    def normalize_parts(parts):
+        result = []
+        for part in parts:
+            for inner_part in part.split('.'):
+                result.append(inner_part.lower().title())
+        return result
+
     def set_city(self, city):
-        self.dynamic_info.remove(city)
+        args_to_remove = [city]
+        index = self.dynamic_info.index(city)
+        if self.dynamic_info[index - 1].lower().title() == 'Город':
+            args_to_remove.append(self.dynamic_info[index - 1])
+        for arg in args_to_remove:
+            self.dynamic_info.remove(arg)
         self.city = city
 
-    @staticmethod
-    def find_city(values):
+    def find_city(self, values):
         conn = sqlite3.connect(os.path.join(Path(__file__).parent.parent, Path('db') / 'cities.db'))
         cursor = conn.cursor()
         for value in values:
@@ -26,6 +38,7 @@ class InputParser:
             cursor.execute(f'SELECT * FROM cities WHERE city="{value}"')
             found_value = cursor.fetchone()
             if found_value:
+                self.set_city(value)
                 return found_value, value
         print('Такого города нет в базе данных городов России.')
         sys.exit(-1)
@@ -90,4 +103,8 @@ class InputParser:
         return possible_buildings[0]
 
     def find_street(self):
+        for part in self.dynamic_info.copy():
+            if part.lower().title() in self.prefixes_class.street_prefixes:
+                self.dynamic_info.remove(part)
+
         return ' '.join(self.dynamic_info)

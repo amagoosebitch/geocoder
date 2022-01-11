@@ -1,7 +1,7 @@
 import argparse
 import psutil
-from tools import *
-from input_parser import InputParser
+from src.tools import *
+from src.input_parser import InputParser
 from subprocess import call
 
 
@@ -19,7 +19,6 @@ def main():
     #     mongodb_connect()
 
     city_info, initial_city = input_parser.find_city(address_without_commas)
-    input_parser.set_city(initial_city)
 
     city, region, south, west, north, east = city_info
 
@@ -51,7 +50,7 @@ def parse_answer(answer):
 
 def setup_parser(args):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-g', '--geocode', nargs='+',type=str, required=False, metavar='input_string',
+    parser.add_argument('-g', '--geocode', nargs='+', type=str, required=False, metavar='input_string',
                         help='Показывает координаты здания и полный адрес по указанному адресу')
     result = parser.parse_args(args)
     return result
