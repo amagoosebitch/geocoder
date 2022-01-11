@@ -32,6 +32,9 @@
 * `src\input_parser.py`: набо функций, отвечающий за парсинг ввода
 # Работа скрипта
 ```
+Перед началом работы нужно запустить контейнер с mongodb
+sudo docker run --rm --name mongodb -d -p 27017:27017 mongo
+
 python src\main.py -g [адрес в свободной форме]
 ```
 # TODO

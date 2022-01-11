@@ -15,8 +15,6 @@ def main():
             address_without_commas.append(inner_address.replace(',', ''))
     input_parser = InputParser(address_without_commas, ' '.join(splitted_address))
 
-    call("sudo docker run --rm --name mongodb -d -p 27017:27017 mongo".split())
-
     # if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
     #     mongodb_connect()
 
@@ -56,7 +54,6 @@ def setup_parser(args):
     parser.add_argument('-g', '--geocode', nargs='+',type=str, required=False, metavar='input_string',
                         help='Показывает координаты здания и полный адрес по указанному адресу')
     result = parser.parse_args(args)
-    print(result)
     return result
 
 
