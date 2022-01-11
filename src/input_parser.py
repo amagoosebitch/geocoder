@@ -11,6 +11,7 @@ class InputParser:
         self.city = ''
         self.street = ''
         self.building = ''
+        self.street_type = ''
         self.prefixes_class = Prefixes()
 
     @staticmethod
@@ -31,7 +32,7 @@ class InputParser:
         self.city = city
 
     def find_city(self, values):
-        conn = sqlite3.connect(os.path.join(Path(__file__).parent.parent, Path('db') / 'cities.db'))
+        conn = sqlite3.connect(Path(__file__).parent.parent / Path('db') / 'cities.db')
         cursor = conn.cursor()
         for value in values:
             value = value.lower().title()
@@ -105,6 +106,7 @@ class InputParser:
     def find_street(self):
         for part in self.dynamic_info.copy():
             if part.lower().title() in self.prefixes_class.street_prefixes:
+                self.street_type = part
                 self.dynamic_info.remove(part)
 
         return ' '.join(self.dynamic_info)

@@ -22,7 +22,7 @@ class Parser:
         self.ways_coordinates = {}
 
     def parse(self):
-        tree = ElementTree.iterparse(os.path.join(Path(__file__).parent.parent, f'xml/{self.city_file}'))
+        tree = ElementTree.iterparse(Path(__file__).parent.parent / Path('xml') / f'{self.city_file}')
         for _, element in tree:
             if element.tag == 'node':
                 self.parse_node(element)

@@ -15,7 +15,7 @@ def download_city_xml(city, east, west, north, south):
     print('Делаем запрос.')
     response = requests.get(url, stream=True)
     print('Ответ получен. Скачиваем xml файл.')
-    with open(os.path.join(Path(__file__).parent.parent, f'xml/{city}.xml'), 'wb') as f:
+    with open(Path(__file__).parent.parent / Path('xml') / f'{city}.xml', 'wb') as f:
         for chunk in response.iter_content(chunk_size=10 * 1024 * 1024):
             if chunk:
                 f.write(chunk)
@@ -23,7 +23,7 @@ def download_city_xml(city, east, west, north, south):
 
 
 def create_city_db(city, east, west, north, south):
-    if not os.path.isfile(os.path.join(Path(__file__).parent.parent, f'xml/{city}.xml')):
+    if not os.path.isfile(Path(__file__).parent.parent / Path('xml') / f'{city}.xml'):
         download_city_xml(city, east, west, north, south)
     print('Создаем базу данных города.')
     parser = Parser(city)
@@ -46,7 +46,7 @@ def find_address(city, street, building):
 
 
 def mongodb_connect():
-    config_path = os.path.join(Path(__file__).parent.parent, 'config/config.txt')
+    config_path = Path(__file__).parent.parent / Path('config') / 'config.txt'
     if not os.path.isfile(config_path):
         print('Файл config.txt отсутствует. Создайте файл в папке config и впишите туда путь до mongod.exe.')
         sys.exit(-4)
