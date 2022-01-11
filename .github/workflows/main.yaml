@@ -27,7 +27,8 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest tests/
+        ls
+        python3 -m pytest
     - name: Check coverage
       run: |
         pytest --cov=src --cov-report html:cov_html
