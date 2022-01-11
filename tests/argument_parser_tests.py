@@ -101,3 +101,19 @@ def test_street_without_space():
     assert actual_city == 'Волжский'
     assert actual_street == '40 Лет Победы'
     assert actual_building == '5'
+
+
+def test_nonexistent_city():
+    args = ['idc', 'sheeesh', '40']
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        actual_city, actual_street, actual_building = pattern_for_tests(args)
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == -1
+
+
+def test_litera():
+    args = ['Санкт-Петербург', 'проспект', 'Обуховской', 'Обороны', '106', 'лит.В']
+    actual_city, actual_street, actual_building = pattern_for_tests(args)
+    assert actual_city == 'Санкт-Петербург'
+    assert actual_street == 'Обуховской Обороны'
+    assert actual_building == '106 ЛитВ'
