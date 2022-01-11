@@ -13,13 +13,11 @@
 * установка `requirements.txt`
 * установка MongoDB (записать путь к файлу mongod.exe в файл `config/config.txt`)
     * https://www.mongodb.com/try/download/community (установить complete версию)
-* установка русского словаря pyenchant  
->Файлы словаря "ru_RU.dic" и "ru_RU.aff" можно взять из офисных пакетов openoffice и libreoffice.
->Их необходимо скопировать в папку 
-
-`..Lib/site-packages/enchant/share/enchant/myspell`
+    `Не обязательно при наличии docker`
 # Состав
 * `config`: папка. где хранится конфигурационный файл с путем до mongod.exe
+`Так же не обязательно при наличии docker
+  может быть попозже уберем`
 
 * `src\cities_db_maker.py`: скрипт по созданию базы данных городов (создает файл `cities.db`)
 
@@ -29,7 +27,7 @@
 
 * `src\tools` : набор функций, необходимый для работы программы
 
-* `src\input_parser.py`: набо функций, отвечающий за парсинг ввода
+* `src\input_parser.py`: набор функций, отвечающий за парсинг ввода
 # Работа скрипта
 ```
 Перед началом работы нужно запустить контейнер с mongodb
