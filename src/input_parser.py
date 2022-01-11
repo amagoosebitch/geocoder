@@ -1,5 +1,5 @@
-from tools import *
-from prefixes_class import Prefixes
+from src.tools import *
+from src.prefixes_class import Prefixes
 
 
 class InputParser:
@@ -85,6 +85,7 @@ class InputParser:
                 if next_element == self.city or any(map(str.isdigit, next_element)):
                     self.dynamic_info.remove(possible_building)
                     return self.handle_building_deletion_info(possible_building)
+        self.dynamic_info.remove(possible_buildings[0])
         return possible_buildings[0]
 
     def find_street(self):
