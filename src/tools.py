@@ -68,3 +68,31 @@ def remove_duplicates(addresses):
         all_nodes = sum([x['nodes'] for x in all_dicts], [])
         answer.append({'addr:street': street, 'addr:housenumber': all_dicts[0]['addr:housenumber'], 'nodes': all_nodes})
     return answer
+
+
+def levenshtein_distance(first, second):
+    """работает без учёта регистра"""
+    first_string = first.lower()
+    second_string = second.lower()
+    opt = []
+    for i in range(len(first_string) + 1):
+        opt.append([0]*(len(second_string) + 1))
+
+    for i in range(len(first_string) + 1):
+        opt[i][0] = i
+
+    for i in range(len(second_string) + 1):
+        opt[0][i] = i
+
+    for i in range(1, len(first_string)+1):
+        for j in range(1, len(second_string) + 1):
+            left = opt[i-1][j]
+            up = opt[i][j-1]
+            diagonal = opt[i-1][j-1]
+            if first_string[i-1] == second_string[j-1]:
+                opt[i][j] = diagonal
+            else:
+                opt[i][j] = 1 + min(left, up, diagonal)
+
+    return opt[-1][-1]
+
