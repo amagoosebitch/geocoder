@@ -1,6 +1,7 @@
-from src.tools import *
-from src.prefixes_class import Prefixes
+from tools import *
+from prefixes_class import Prefixes
 from pathlib import Path
+
 
 class InputParser:
     def __init__(self, values, string_to_parse):

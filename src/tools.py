@@ -3,11 +3,11 @@ import os
 from pathlib import Path
 import sys
 import requests
-from src.xml_parser import Parser
+from xml_parser import Parser
 from pymongo import MongoClient
 import re
 from collections import Counter
-from src.prefixes_class import Prefixes
+from prefixes_class import Prefixes
 
 
 def download_city_xml(city, east, west, north, south):
