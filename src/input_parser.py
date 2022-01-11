@@ -1,6 +1,6 @@
 from src.tools import *
 from src.prefixes_class import Prefixes
-
+from pathlib import Path
 
 class InputParser:
     def __init__(self, values, string_to_parse):
@@ -18,7 +18,7 @@ class InputParser:
 
     @staticmethod
     def find_city(values):
-        conn = sqlite3.connect(os.path.join(Path(__file__).parent.parent, r'db\cities.db'))
+        conn = sqlite3.connect(os.path.join(Path(__file__).parent.parent, Path('db') / 'cities.db'))
         cursor = conn.cursor()
         for value in values:
             value = value.lower().title()
