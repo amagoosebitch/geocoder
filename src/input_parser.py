@@ -118,7 +118,7 @@ class InputParser:
             current_word = info[i].lower().title()
             if current_word in self.prefixes_class.building_postfixes:
                 self.dynamic_info.remove(info[i])
-                if current_word in self.prefixes_class.building_replacements.keys():  # ПЕРЕДЕЛАН!!!
+                if current_word in self.prefixes_class.building_replacements.keys():
                     result += ' ' + self.prefixes_class.building_replacements[current_word]
                 else:
                     result += ' ' + info[i].replace('.', '')
