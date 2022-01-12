@@ -20,8 +20,9 @@ class InputParser:
     def normalize_parts(parts):
         result = []
         for part in parts:
-            for inner_part in re.split(',|\.', part):
-                result.append(inner_part.lower().title())
+            for inner_part in re.split(r',|\.', part):
+                if len(inner_part) != 0:
+                    result.append(inner_part.lower().title())
         return result
 
     def _set_city(self, city):
@@ -39,7 +40,7 @@ class InputParser:
         cities = set(cursor.execute('SELECT city FROM cities').fetchall())
         cities = [x[0] for x in cities]
         for value in self.info:
-            if (value,) not in cities:
+            if value not in cities:
                 continue
             cursor.execute(f'SELECT * FROM cities WHERE city="{value}"')
             found_value = cursor.fetchone()
@@ -161,9 +162,9 @@ class InputParser:
 
     def parse(self):
         city_info, city = self._find_city()
-        street = self._find_street()
         if not self.building:
             building = self._find_building()
         else:
             building = self.building
+        street = self._find_street()
         return city_info, city, street, self.street_type, building
