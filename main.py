@@ -2,13 +2,10 @@ import argparse
 import psutil
 from src.tools import *
 from src.input_parser import InputParser
-from subprocess import call
 
 
 def main():
-    # splitted_address = setup_parser(sys.argv[1:]).geocode
-    # splitted_address = ['Кораблестроителей', 'Санкт-Петербург', 'дом', '35', 'корпус', '1', 'литера', 'В']
-    splitted_address = ['чапаева,г.Сатка,16а']
+    splitted_address = setup_parser(sys.argv[1:]).geocode
     input_parser = InputParser(splitted_address, ' '.join(splitted_address))
 
     if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
@@ -18,7 +15,7 @@ def main():
 
     city, region, south, west, north, east = city_info
 
-    database_names = MongoClient('localhost', 27017).list_database_names()  # СДЕЛАТЬ ЗАПУСК НА КОМПАСЕ!!!
+    database_names = MongoClient('localhost', 27017).list_database_names()
     if city not in database_names:
         create_city_db(city, east, west, north, south)
 

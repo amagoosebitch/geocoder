@@ -55,7 +55,7 @@ class Parser:
                 result['addr:street_type'] = street_type
                 street = True
             if key == 'addr:housenumber':
-                result[key] = tag.attrib['v']
+                result[key] = self.normalize_building(tag.attrib['v'])
                 housenumber = True
         self.nodes_result.append(result)
         if len(self.nodes_result) > NODES_COUNT:
@@ -82,13 +82,15 @@ class Parser:
 
     def normalize_building(self, building):
         building = building.replace('.', '')
-        lit = None
-        korp = None
-        s_building = None
-        for key in self.prefixes.building_replacements.keys():
-            if key in building:
-
-
+        result = ''
+        for part in building.split():
+            for key in self.prefixes.building_replacements.keys():
+                if key == part or (len(part) > len(key) and part[:len(key)] == key):
+                    part = self.prefixes.building_replacements[key] + ' '
+                    break
+            result += part + ' '
+        result = result.replace('  ', '')
+        return result[:-1]
 
     def parse_way(self, way):
         subelements = list(way)
@@ -109,8 +111,8 @@ class Parser:
                     result['addr:street_type'] = street_type
                     street = True
                 if key == 'addr:housenumber':
+                    result[key] = self.normalize_building(child.attrib['v'])
                     housenumber = True
-                    result[key] = child.attrib['v']
         if street and housenumber:
             result['nodes'] = tuple(nodes)
             self.ways_result.append(result)

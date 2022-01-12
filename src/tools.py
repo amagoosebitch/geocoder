@@ -7,6 +7,7 @@ from src.xml_parser import Parser
 from pymongo import MongoClient
 import re
 from collections import Counter
+from fuzzywuzzy import process
 
 
 def download_city_xml(city, east, west, north, south):
@@ -31,18 +32,29 @@ def create_city_db(city, east, west, north, south):
     print('База данных успешно создана.')
 
 
-def find_address(city, street, street_type, building):
-    print(city, street, building)
+def find_address(city, street, street_type, building, second_iteration=False):
     client = MongoClient('localhost', 27017)
     ways = client[city]['ways']
     cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': re.compile(rf'.*?{street}.*?')})
     addresses = []
     for c in cursor:
         addresses.append(c)
-    if len(addresses) == 0:
-        print('Адрес не найден.')
-        sys.exit(-2)
-    return addresses
+    if len(addresses) == 0 and not second_iteration:
+        possible_street = handle_mistake_in_street(ways, street)
+        if not possible_street:
+            print('Адрес не найден.')
+            sys.exit(-2)
+        else:
+            return find_address(city, possible_street, street_type, building, True)
+    else:
+        return addresses
+
+
+def handle_mistake_in_street(ways, street):
+    possible_street = None
+    streets = ways.distinct('addr:street')
+    possible_street, coef = process.extractOne(street, streets)
+    return possible_street
 
 
 def mongodb_connect():
