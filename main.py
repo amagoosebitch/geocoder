@@ -7,10 +7,6 @@ from src.input_parser import InputParser
 def main():
     splitted_address = setup_parser(sys.argv[1:]).geocode
     input_parser = InputParser(splitted_address, ' '.join(splitted_address))
-
-    if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
-        mongodb_connect()
-
     city_info, initial_city, street, street_type, building = input_parser.parse()
 
     city, region, south, west, north, east = city_info
