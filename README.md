@@ -33,7 +33,7 @@
 Перед началом работы нужно запустить контейнер с mongodb
 sudo docker run --rm --name mongodb -d -p 27017:27017 mongo
 
-python src\main.py -g [адрес в свободной форме]
+python main.py -g [адрес в свободной форме]
 ```
 # Тестирование
 ```
