@@ -1,6 +1,8 @@
 from src.tools import *
 from src.prefixes_class import Prefixes
 from pathlib import Path
+from fuzzywuzzy import process
+import re
 
 
 class InputParser:
@@ -18,14 +20,14 @@ class InputParser:
     def normalize_parts(parts):
         result = []
         for part in parts:
-            for inner_part in part.split('.'):
+            for inner_part in re.split(',|\.', part):
                 result.append(inner_part.lower().title())
         return result
 
     def _set_city(self, city):
         args_to_remove = [city]
         index = self.dynamic_info.index(city)
-        if self.dynamic_info[index - 1].lower().title() == 'Город':
+        if self.dynamic_info[index - 1].lower().title() in self.prefixes_class.city_prefixes:
             args_to_remove.append(self.dynamic_info[index - 1])
         for arg in args_to_remove:
             self.dynamic_info.remove(arg)
@@ -35,6 +37,7 @@ class InputParser:
         conn = sqlite3.connect(Path(__file__).parent.parent / Path('db') / 'cities.db')
         cursor = conn.cursor()
         cities = set(cursor.execute('SELECT city FROM cities').fetchall())
+        cities = [x[0] for x in cities]
         for value in self.info:
             if (value,) not in cities:
                 continue
@@ -55,25 +58,35 @@ class InputParser:
         sys.exit(-1)
 
     def _find_city_with_mistakes(self, cities):
-        args = self.dynamic_info
-        found_city = None
-        if 'Город' in args:
-            found_city = args[args.index('Город') + 1]
-        if found_city:
-            for city in cities:
-                city = city[0]
-                distance = levenshtein_distance(found_city, city)
-                if distance <= 2:
-                    self.dynamic_info[self.dynamic_info.index(found_city)] = city
-                    return city
-        else:
-            possible_cities = []
-            for arg in args:
-                for city in cities:
-                    city = city[0]
-                    distance = levenshtein_distance(arg, city)
-                    if distance <= 2:
-                        possible_cities.append(city)
+        args = self.dynamic_info.copy()
+        for arg in args:
+            if arg in self.prefixes_class.city_prefixes:
+                args = [args[args.index(arg) + 1]]
+                self.dynamic_info.remove(arg)
+                break
+        possible_cities = []
+        for arg in args:
+            possible_city, coef = process.extractOne(arg, cities)
+            if coef >= 80:
+                possible_cities.append((possible_city, coef, arg))
+        possible_cities.sort(key=lambda x: x[1], reverse=True)
+        if len(possible_cities) > 1:
+            string = '\n'
+            for num, word in enumerate(possible_cities):
+                string += '{}: {}\n'.format(num+1, word[0])
+            while True:
+                answer = input(f'Введите номер города, который вы имели в виду: {string}')
+                if answer.isdigit() and int(answer) <= len(possible_cities):
+                    break
+                else:
+                    print('Неверный формат ввода.')
+            city = possible_cities[int(answer)-1]
+            self.dynamic_info[self.dynamic_info.index(city[2])] = city[0]
+            return city[0]
+        if len(possible_cities) == 1:
+            city = possible_cities[0]
+            self.dynamic_info[self.dynamic_info.index(city[2])] = city[0]
+            return city[0]
         return None
 
     def _find_building(self):

@@ -1,5 +1,6 @@
 class Prefixes:
     def __init__(self):
+        self._city_prefixes = ['Гор', 'Г', 'Город']
         self._street_prefixes = ['Улица', 'Проспект', 'Бульвар', 'Аллея', 'Переулок', 'Тракт', 'Набережная', 'Линия',
                                  'Ул', 'Пр', 'Пр-кт', 'Б-р', 'Аллея', 'Пер', 'Тракт', 'Наб', 'Линия',
                                  'Ул.', 'Пр.', 'Пр-кт.', 'Б-р.', 'Пер.', 'Наб.']
@@ -24,3 +25,7 @@ class Prefixes:
     @property
     def replacements(self):
         return self._replacements
+
+    @property
+    def city_prefixes(self):
+        return self._city_prefixes

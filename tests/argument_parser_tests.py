@@ -7,7 +7,7 @@ import pytest
 
 def pattern_for_tests(args):
     parser = input_parser.InputParser(args, ' '.join(args))
-    city_info, actual_city, actual_street, street_type, actual_building = parser.parse
+    city_info, actual_city, actual_street, street_type, actual_building = parser.parse()
     return actual_city, actual_street, actual_building
 
 
@@ -29,7 +29,7 @@ def test_building_with_char():
         assert actual_building == '16А'
 
 
-def test_city_in_input():
+def test_city_in_input():  # для других префиксов
     args = ['город', 'Екатеринбург', 'Чапаева', '16А']
     actual_city, actual_street, actual_building = pattern_for_tests(args)
     assert actual_city == 'Екатеринбург'
@@ -37,7 +37,7 @@ def test_city_in_input():
     assert actual_building == '16А'
 
 
-def test_street_in_input():
+def test_street_in_input():  # для других префиксов
     args = ['Екатеринбург', 'улица', 'Чапаева', '16А']
     actual_city, actual_street, actual_building = pattern_for_tests(args)
     assert actual_city == 'Екатеринбург'
@@ -45,7 +45,7 @@ def test_street_in_input():
     assert actual_building == '16А'
 
 
-def test_building_in_input():
+def test_building_in_input():  # для других префиксов
     args = ['Екатеринбург', 'Чапаева', 'дом', '16А']
     actual_city, actual_street, actual_building = pattern_for_tests(args)
     assert actual_city == 'Екатеринбург'
@@ -54,7 +54,7 @@ def test_building_in_input():
 
 
 def test_city_street_building_in_input():
-    args = ['город', 'Екатеринбург', 'улица', 'Чапаева', 'дом', '16А']
+    args = ['город', 'Екатеринбург', 'ул.', 'Чапаева', 'д', '16А']
     actual_city, actual_street, actual_building = pattern_for_tests(args)
     assert actual_city == 'Екатеринбург'
     assert actual_street == 'Чапаева'

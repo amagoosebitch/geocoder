@@ -8,13 +8,8 @@ from subprocess import call
 def main():
     # splitted_address = setup_parser(sys.argv[1:]).geocode
     # splitted_address = ['Кораблестроителей', 'Санкт-Петербург', 'дом', '35', 'корпус', '1', 'литера', 'В']
-    splitted_address = ['Чапаева', 'Екатериньург', '16А']
-    address_without_commas = []
-    for address in splitted_address:
-        without_dot = address.split('.')
-        for inner_address in without_dot:
-            address_without_commas.append(inner_address.replace(',', ''))
-    input_parser = InputParser(address_without_commas, ' '.join(splitted_address))
+    splitted_address = ['чапаева,г.екатеринбург,16а']
+    input_parser = InputParser(splitted_address, ' '.join(splitted_address))
 
     # if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
     #     mongodb_connect()

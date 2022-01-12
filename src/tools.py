@@ -92,7 +92,7 @@ def levenshtein_distance(first, second):
             if first_string[i-1] == second_string[j-1]:
                 opt[i][j] = diagonal
             else:
-                opt[i][j] = 1 + min(left, up, diagonal)
+                opt[i][j] = 1 + min(left+1, up+1, diagonal)
 
     return opt[-1][-1]
 
