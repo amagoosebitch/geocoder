@@ -46,6 +46,9 @@ def find_address(city, street, street_type, building, second_iteration=False):
             sys.exit(-2)
         else:
             return find_address(city, possible_street, street_type, building, True)
+    elif len(addresses) == 0 and second_iteration:
+        print('Адрес не найден.')
+        sys.exit(-2)
     else:
         return addresses
 
