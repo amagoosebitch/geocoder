@@ -48,7 +48,6 @@ class InputParser:
                 self._set_city(value)
                 return found_value, value
 
-        _ = self._find_building()
         city = self._find_city_with_mistakes(cities)
         if city:
             cursor.execute(f'SELECT * FROM cities WHERE city="{city}"')
@@ -83,10 +82,12 @@ class InputParser:
                     print('Неверный формат ввода.')
             city = possible_cities[int(answer)-1]
             self.dynamic_info[self.dynamic_info.index(city[2])] = city[0]
+            self.info[self.info.index(city[2])] = city[0]
             return city[0]
         if len(possible_cities) == 1:
             city = possible_cities[0]
             self.dynamic_info[self.dynamic_info.index(city[2])] = city[0]
+            self.info[self.info.index(city[2])] = city[0]
             return city[0]
         return None
 

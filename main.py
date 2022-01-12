@@ -6,6 +6,7 @@ from src.input_parser import InputParser
 
 def main():
     splitted_address = setup_parser(sys.argv[1:]).geocode
+    splitted_address = ['Волский', '40', "лет", "победы", "9"]
     input_parser = InputParser(splitted_address, ' '.join(splitted_address))
     city_info, initial_city, street, street_type, building = input_parser.parse()
 
