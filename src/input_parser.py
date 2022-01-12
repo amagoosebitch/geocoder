@@ -68,7 +68,7 @@ class InputParser:
         possible_cities = []
         for arg in args:
             possible_city, coef = process.extractOne(arg, cities)
-            if coef >= 80:
+            if coef >= 70:
                 possible_cities.append((possible_city, coef, arg))
         possible_cities.sort(key=lambda x: x[1], reverse=True)
         if len(possible_cities) > 1:

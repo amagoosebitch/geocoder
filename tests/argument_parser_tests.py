@@ -148,3 +148,12 @@ def test_multiple_choice(monkeypatch):
     assert actual_city == 'Екатеринбург'
     assert actual_street == 'Чапаева'
     assert actual_building == '16А'
+
+
+def test_multiple_choice_when_street_is_first(monkeypatch):
+    monkeypatch.setattr('builtins.input', lambda _: "2")
+    args = ['Ектаеиньуг', 'Чапаева', 'дом', '16А']
+    actual_city, actual_street, actual_building = pattern_for_tests(args)
+    assert actual_city == 'Екатеринбург'
+    assert actual_street == 'Чапаева'
+    assert actual_building == '16А'
