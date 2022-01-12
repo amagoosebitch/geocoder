@@ -8,20 +8,21 @@ from subprocess import call
 def main():
     # splitted_address = setup_parser(sys.argv[1:]).geocode
     # splitted_address = ['Кораблестроителей', 'Санкт-Петербург', 'дом', '35', 'корпус', '1', 'литера', 'В']
-    splitted_address = ['чапаева,г.екатеринбург,16а']
+    splitted_address = ['чапаева,г.Сатка,16а']
     input_parser = InputParser(splitted_address, ' '.join(splitted_address))
 
-    # if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
-    #     mongodb_connect()
+    if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
+        mongodb_connect()
 
     city_info, initial_city, street, street_type, building = input_parser.parse()
 
     city, region, south, west, north, east = city_info
 
-    if city not in MongoClient('localhost', 27017).list_database_names():
+    database_names = MongoClient('localhost', 27017).list_database_names()  # СДЕЛАТЬ ЗАПУСК НА КОМПАСЕ!!!
+    if city not in database_names:
         create_city_db(city, east, west, north, south)
 
-    addresses = remove_duplicates(find_address(city, street, building))
+    addresses = remove_duplicates(find_address(city, street, street_type, building))
     for addr in addresses:
         full_street, housenumber, lat, lon = parse_answer(addr)
         print(f'Адрес: {region}, {city}, {full_street} {housenumber}.')

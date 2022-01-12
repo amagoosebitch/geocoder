@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from xml.etree import ElementTree
 from pymongo import MongoClient
+from src.prefixes_class import Prefixes
 
 NODES_COUNT = 200000
 WAYS_COUNT = 100000
@@ -20,6 +21,7 @@ class Parser:
         self.ways_result = []
         self.nodes_coordinates = {}
         self.ways_coordinates = {}
+        self.prefixes = Prefixes()
 
     def parse(self):
         tree = ElementTree.iterparse(Path(__file__).parent.parent / Path('xml') / f'{self.city_file}')
@@ -48,7 +50,9 @@ class Parser:
         for tag in tags:
             key = tag.attrib['k'].lower()
             if key == 'addr:street':
-                result[key] = tag.attrib['v']
+                street_name, street_type = self.normalize_street(tag.attrib['v'])
+                result[key] = street_name
+                result['addr:street_type'] = street_type
                 street = True
             if key == 'addr:housenumber':
                 result[key] = tag.attrib['v']
@@ -59,6 +63,32 @@ class Parser:
             self.nodes_result = []
         if street and housenumber:
             self.ways.insert_many([result])
+
+    def normalize_street(self, street):
+        street_type = None
+        street_splited = street.split()
+        for part in street.split():
+            title_part = part.lower().title()
+            if title_part in self.prefixes.street_replacements.keys():
+                street_type = title_part
+                street_splited.remove(part)
+            else:
+                for key in self.prefixes.street_replacements.keys():
+                    if title_part in self.prefixes.street_replacements[key]:
+                        street_type = key
+                        street_splited.remove(part)
+        street_name = ' '.join([x.lower().title() for x in street_splited])
+        return street_name, street_type
+
+    def normalize_building(self, building):
+        building = building.replace('.', '')
+        lit = None
+        korp = None
+        s_building = None
+        for key in self.prefixes.building_replacements.keys():
+            if key in building:
+
+
 
     def parse_way(self, way):
         subelements = list(way)
@@ -74,8 +104,10 @@ class Parser:
             elif child.tag == 'tag':
                 key = child.attrib['k'].lower()
                 if key == 'addr:street':
+                    street_name, street_type = self.normalize_street(child.attrib['v'])
+                    result[key] = street_name
+                    result['addr:street_type'] = street_type
                     street = True
-                    result[key] = child.attrib['v']
                 if key == 'addr:housenumber':
                     housenumber = True
                     result[key] = child.attrib['v']

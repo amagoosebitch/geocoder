@@ -31,7 +31,7 @@ def create_city_db(city, east, west, north, south):
     print('База данных успешно создана.')
 
 
-def find_address(city, street, building):
+def find_address(city, street, street_type, building):
     print(city, street, building)
     client = MongoClient('localhost', 27017)
     ways = client[city]['ways']
