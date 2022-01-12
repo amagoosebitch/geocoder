@@ -6,8 +6,9 @@ from subprocess import call
 
 
 def main():
-    splitted_address = setup_parser(sys.argv[1:]).geocode
+    # splitted_address = setup_parser(sys.argv[1:]).geocode
     # splitted_address = ['Кораблестроителей', 'Санкт-Петербург', 'дом', '35', 'корпус', '1', 'литера', 'В']
+    splitted_address = ['Чапаева', 'Екатериньург', '16А']
     address_without_commas = []
     for address in splitted_address:
         without_dot = address.split('.')
@@ -18,15 +19,13 @@ def main():
     # if "mongod.exe" not in (p.name() for p in psutil.process_iter()):
     #     mongodb_connect()
 
-    city_info, initial_city = input_parser.find_city(address_without_commas)
+    city_info, initial_city, street, street_type, building = input_parser.parse()
 
     city, region, south, west, north, east = city_info
 
     if city not in MongoClient('localhost', 27017).list_database_names():
         create_city_db(city, east, west, north, south)
 
-    building = input_parser.find_building()
-    street = input_parser.find_street()
     addresses = remove_duplicates(find_address(city, street, building))
     for addr in addresses:
         full_street, housenumber, lat, lon = parse_answer(addr)

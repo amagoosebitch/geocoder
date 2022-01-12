@@ -7,9 +7,7 @@ import pytest
 
 def pattern_for_tests(args):
     parser = input_parser.InputParser(args, ' '.join(args))
-    city_info, actual_city = parser.find_city(args)
-    actual_building = parser.find_building()
-    actual_street = parser.find_street()
+    city_info, actual_city, actual_street, street_type, actual_building = parser.parse
     return actual_city, actual_street, actual_building
 
 
