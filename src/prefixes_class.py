@@ -8,7 +8,7 @@ class Prefixes:
         self._building_postfixes = ['Строение', 'Корпус', 'Литера', 'Лит', 'Стр', 'Корп', 'К', 'Лит.', 'Стр.', 'Корп.',
                                     'К.']
 
-        self._replacements = {'Строение': 'cтр.', 'Корпус': 'к', 'Литера': 'лит'}
+        self._replacements = {'Строение': 'cтр.', 'Корпус': 'к', 'Литера': 'Лит'}
 
     @property
     def street_prefixes(self):

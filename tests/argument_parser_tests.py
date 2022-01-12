@@ -115,3 +115,19 @@ def test_litera():
     assert actual_city == 'Санкт-Петербург'
     assert actual_street == 'Обуховской Обороны'
     assert actual_building == '106 ЛитВ'
+
+
+def test_korpus():
+    args = ['Санкт-Петербург', 'Савушкина', '83', 'корпус', '3']
+    actual_city, actual_street, actual_building = pattern_for_tests(args)
+    assert actual_city == 'Санкт-Петербург'
+    assert actual_street == 'Савушкина'
+    assert actual_building == '83 к3'
+
+
+def test_very_bad_input():
+    args = ['Кораблестроителей', 'Санкт-Петербург', 'дом', '35', 'корпус', '1', 'литера', 'В']
+    actual_city, actual_street, actual_building = pattern_for_tests(args)
+    assert actual_city == 'Санкт-Петербург'
+    assert actual_street == 'Кораблестроителей'
+    assert actual_building == '35 к1 ЛитВ'
