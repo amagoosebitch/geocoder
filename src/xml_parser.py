@@ -12,7 +12,7 @@ RELATIONS_COUNT = 100000
 class Parser:
     def __init__(self, city):
         client = MongoClient('localhost', 27017)
-        db = client[city]
+        db = client[city.replace(' ', '_')]
         self.ways = db['ways']
         self.nodes = db['nodes']
         self.city_file = city + '.xml'
@@ -49,7 +49,7 @@ class Parser:
         housenumber = False
         for tag in tags:
             key = tag.attrib['k'].lower()
-            if key == 'addr:street':
+            if key == 'addr:street' or key == 'addr:street2':
                 street_name, street_type = self.normalize_street(tag.attrib['v'])
                 result[key] = street_name
                 result['addr:street_type'] = street_type
@@ -65,20 +65,25 @@ class Parser:
             self.ways.insert_many([result])
 
     def normalize_street(self, street):
-        street_type = None
         street_splited = street.split()
-        for part in street.split():
+        street_type = self.handle_street_parrt_normalize(street_splited[0])
+        if street_type:
+            street_splited.remove(street_type)
+        for part in street_splited:
             title_part = part.lower().title()
-            if title_part in self.prefixes.street_replacements.keys():
-                street_type = title_part
-                street_splited.remove(part)
-            else:
-                for key in self.prefixes.street_replacements.keys():
-                    if title_part in self.prefixes.street_replacements[key]:
-                        street_type = key
-                        street_splited.remove(part)
+            street_type = self.handle_street_parrt_normalize(title_part)
         street_name = ' '.join([x.lower().title() for x in street_splited])
         return street_name, street_type
+
+    def handle_street_parrt_normalize(self, part):
+        street_type = None
+        if part in self.prefixes.street_replacements.keys():
+            street_type = part
+        else:
+            for key in self.prefixes.street_replacements.keys():
+                if part in self.prefixes.street_replacements[key]:
+                    street_type = key
+        return street_type
 
     def normalize_building(self, building):
         building = building.replace('.', '')
@@ -105,7 +110,7 @@ class Parser:
                 nodes.append(self.nodes_coordinates[ref])
             elif child.tag == 'tag':
                 key = child.attrib['k'].lower()
-                if key == 'addr:street':
+                if key == 'addr:street' or key == 'addr:street2':
                     street_name, street_type = self.normalize_street(child.attrib['v'])
                     result[key] = street_name
                     result['addr:street_type'] = street_type

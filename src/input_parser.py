@@ -20,19 +20,22 @@ class InputParser:
     def normalize_parts(parts):
         result = []
         for part in parts:
-            for inner_part in re.split(r',|\.', part):
+            for inner_part in re.split(r',', part):
                 if len(inner_part) != 0:
-                    result.append(inner_part.lower().title())
+                    if any(char.isdigit() for char in inner_part):
+                        result.append(inner_part)
+                    else:
+                        result.append(inner_part.lower().title())
         return result
 
     def _set_city(self, city):
-        args_to_remove = [city]
-        index = self.dynamic_info.index(city)
+        args_to_remove = city.split()
+        index = self.dynamic_info.index(args_to_remove[0])
         if self.dynamic_info[index - 1].lower().title() in self.prefixes_class.city_prefixes:
             args_to_remove.append(self.dynamic_info[index - 1])
         for arg in args_to_remove:
             self.dynamic_info.remove(arg)
-        self.city = city
+        self.city = ' '.join(args_to_remove)
 
     def _find_city(self):
         conn = sqlite3.connect(Path(__file__).parent.parent / Path('db') / 'cities.db')
@@ -40,56 +43,67 @@ class InputParser:
         cities = set(cursor.execute('SELECT city FROM cities').fetchall())
         cities = [x[0] for x in cities]
         for value in self.info:
-            if value not in cities:
-                continue
-            cursor.execute(f'SELECT * FROM cities WHERE city="{value}"')
-            found_value = cursor.fetchone()
+            found_value, possible_city = self.try_find_city_from_word(cities, value, cursor)
             if found_value:
-                self._set_city(value)
-                return found_value, value
+                self._set_city(possible_city)
+                return found_value, possible_city
 
         city = self._find_city_with_mistakes(cities)
         if city:
-            cursor.execute(f'SELECT * FROM cities WHERE city="{city}"')
-            found_value = cursor.fetchone()
-            self._set_city(city)
-            return found_value, city
+            return self.extract_city_data(cursor, city)
         print('Такого города нет в базе данных городов России.')
         sys.exit(-1)
+
+    def extract_city_data(self, cursor, city):
+        cursor.execute(f'SELECT * FROM cities WHERE city="{city}"')
+        found_value = cursor.fetchone()
+        self._set_city(city)
+        return found_value, city
 
     def _find_city_with_mistakes(self, cities):
         args = self.dynamic_info.copy()
         for arg in args:
             if arg in self.prefixes_class.city_prefixes:
-                args = [args[args.index(arg) + 1]]
+                args = [args[args.index(arg) + 1: args.index(arg) + 2]]
                 self.dynamic_info.remove(arg)
                 break
-        possible_cities = []
+        possible_cities = set()
+        possible_cities_info = set()
         for arg in args:
-            possible_city, coef = process.extractOne(arg, cities)
-            if coef >= 70:
-                possible_cities.append((possible_city, coef, arg))
-        possible_cities.sort(key=lambda x: x[1], reverse=True)
-        if len(possible_cities) > 1:
+            self.find_possible_cities(cities, possible_cities, possible_cities_info, arg)
+        possible_cities_info = list(possible_cities_info)
+        possible_cities_info.sort(key=lambda x: x[1], reverse=True)
+        return self.handle_city_choice(possible_cities_info)
+
+    def handle_city_choice(self, possible_cities_info):
+        if len(possible_cities_info) > 1:
             string = '\n'
-            for num, word in enumerate(possible_cities):
+            for num, word in enumerate(possible_cities_info):
                 string += '{}: {}\n'.format(num+1, word[0])
             while True:
                 answer = input(f'Введите номер города, который вы имели в виду: {string}')
-                if answer.isdigit() and int(answer) <= len(possible_cities):
+                if answer.isdigit() and int(answer) <= len(possible_cities_info):
                     break
                 else:
                     print('Неверный формат ввода.')
-            city = possible_cities[int(answer)-1]
+            city = possible_cities_info[int(answer)-1]
             self.dynamic_info[self.dynamic_info.index(city[2])] = city[0]
             self.info[self.info.index(city[2])] = city[0]
             return city[0]
-        if len(possible_cities) == 1:
-            city = possible_cities[0]
+        if len(possible_cities_info) == 1:
+            city = possible_cities_info[0]
             self.dynamic_info[self.dynamic_info.index(city[2])] = city[0]
             self.info[self.info.index(city[2])] = city[0]
             return city[0]
         return None
+
+    @staticmethod
+    def find_possible_cities(cities, possible_cities, possible_cities_info, arg):
+        best_matches = process.extractBests(arg, cities, limit=3)
+        for possible_city, coef in best_matches:
+            if coef >= 70 and possible_city not in possible_cities:
+                possible_cities.add(possible_city)
+                possible_cities_info.add((possible_city, coef, arg))
 
     def _find_building(self):
         address = self.dynamic_info
@@ -152,20 +166,55 @@ class InputParser:
         return possible_buildings[0]
 
     def _find_street(self):
-        for part in self.dynamic_info.copy():
-            if part.lower().title() in self.prefixes_class.street_prefixes:
-                self.street_type = part
-                self.dynamic_info.remove(part)
+        part = self.dynamic_info[0]
+        if part.lower().title() in self.prefixes_class.street_prefixes:
+            self.street_type = part.lower().title()
+            self.dynamic_info.remove(part)
 
         street = ' '.join(self.dynamic_info)
         self.street = street
         return street
 
     def parse(self):
-        city_info, city = self._find_city()
+        city_info, city = self.pre_handle_parsing()
+        if not self.city:
+            city_info, city = self._find_city()
         if not self.building:
             building = self._find_building()
         else:
             building = self.building
         street = self._find_street()
         return city_info, city, street, self.street_type, building
+
+    def pre_handle_parsing(self):
+        parts = self.string_to_parse.split(',')
+        if len(parts) == 1:
+            return None, None
+        else:
+            possible_cities = set()
+            possible_cities_info = set()
+            cursor, cities = self.create_cities_and_cursor()
+            for part in parts:
+                if len(part) == 0:
+                    continue
+                found_value, city = self.try_find_city_from_word(cities, part, cursor)
+                if found_value:
+                    return found_value, city
+                else:
+                    self.find_possible_cities(cities, possible_cities, possible_cities_info, part)
+            self.handle_city_choice(possible_cities_info)
+
+    def try_find_city_from_word(self, cities, word, cursor):
+        if word in cities:
+            cursor.execute(f'SELECT * FROM cities WHERE city="{word}"')
+            found_value = cursor.fetchone()
+            if found_value:
+                self._set_city(word)
+                return found_value, word
+
+    @staticmethod
+    def create_cities_and_cursor():
+        conn = sqlite3.connect(Path(__file__).parent.parent / Path('db') / 'cities.db')
+        cursor = conn.cursor()
+        cities = set(cursor.execute('SELECT city FROM cities').fetchall())
+        return cursor, [x[0] for x in cities]

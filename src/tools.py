@@ -39,6 +39,9 @@ def find_address(city, street, street_type, building, second_iteration=False):
     addresses = []
     for c in cursor:
         addresses.append(c)
+    cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street2': re.compile(rf'.*?{street}.*?')})
+    for c in cursor:
+        addresses.append(c)
     if len(addresses) == 0 and not second_iteration:
         possible_street = handle_mistake_in_street(ways, street)
         if not possible_street:

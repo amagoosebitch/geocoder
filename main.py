@@ -6,16 +6,19 @@ from src.input_parser import InputParser
 
 def main():
     splitted_address = setup_parser(sys.argv[1:]).geocode
+    # splitted_address = ["Санкт-Петербург", "18-я", "линия", "В.О.", "63/17"]
+    splitted_address = ['Нижний', 'Новгород,', 'Ленина', '1']
+    print(splitted_address)
     input_parser = InputParser(splitted_address, ' '.join(splitted_address))
     city_info, initial_city, street, street_type, building = input_parser.parse()
-
+    print(initial_city, street, building)
     city, region, south, west, north, east = city_info
 
     database_names = MongoClient('localhost', 27017).list_database_names()
     if city not in database_names:
         create_city_db(city, east, west, north, south)
 
-    addresses = remove_duplicates(find_address(city, street, street_type, building))
+    addresses = remove_duplicates(find_address(city.replace(' ', '_'), street, street_type, building))
     for addr in addresses:
         full_street, housenumber, lat, lon = parse_answer(addr)
         print(f'Адрес: {region}, {city}, {full_street} {housenumber}.')
