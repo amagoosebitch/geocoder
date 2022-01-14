@@ -59,8 +59,25 @@ def find_address(city, street, street_type, building, second_iteration=False):
 def handle_mistake_in_street(ways, street):
     possible_street = None
     streets = ways.distinct('addr:street')
-    possible_street, coef = process.extractOne(street, streets)
-    return possible_street
+    bests = process.extractBests(street, streets, limit=3)
+    return handle_street_choice(bests)
+
+
+def handle_street_choice(bests):
+    if len(bests) == 1:
+        return bests[0]
+    if len(bests) > 1:
+        string = '\n'
+        for num, word in enumerate(bests):
+            string += '{}: {}\n'.format(num + 1, word[0])
+        while True:
+            answer = input(f'Введите номер улицы, который вы имели в виду: {string}')
+            if answer.isdigit() and int(answer) <= len(bests):
+                break
+            else:
+                print('Неверный формат ввода.')
+        return bests[int(answer) - 1]
+    return None
 
 
 def mongodb_connect():
