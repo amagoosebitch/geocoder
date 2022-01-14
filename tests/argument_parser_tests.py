@@ -151,8 +151,8 @@ def test_multiple_choice(monkeypatch):
 
 
 def test_multiple_choice_when_street_is_first(monkeypatch):
-    monkeypatch.setattr('builtins.input', lambda _: "2")
-    args = ['Екатериньуг', 'Чапаева', 'дом', '16А']
+    monkeypatch.setattr('builtins.input', lambda _: "3")
+    args = ['Ектериньуг', 'Чапаева', 'дом', '16А']
     actual_city, actual_street, actual_building = pattern_for_tests(args)
     assert actual_city == 'Екатеринбург'
     assert actual_street == 'Чапаева'
@@ -168,8 +168,16 @@ def test_city_mistake_and_multiple_possible_buildings():
 
 
 def test_very_weird_adress():
-    args = ['Санкт-Петербург', 'Чекистов', '44', 'корпус', '3', 'лит.А']
+    args = ['Санкт-Петербург', 'Чекистов', '44', 'корп.', '3', 'лит.А']
     actual_city, actual_street, actual_building = pattern_for_tests(args)
     assert actual_city == 'Санкт-Петербург'
     assert actual_street == "Чекистов"
     assert actual_building == '44 к3 ЛитА'
+
+
+def test_not_enough_args():
+    args = ['Ленинаб45,','Пермь']
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        actual_city, actual_street, actual_building = pattern_for_tests(args)
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == -2

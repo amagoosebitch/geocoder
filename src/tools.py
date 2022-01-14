@@ -83,7 +83,12 @@ def remove_duplicates(addresses):
     counter = Counter(streets)
     for street in counter:
         all_dicts = [x for x in addresses if x['addr:street'] == street]
-        all_nodes = sum([x['nodes'] for x in all_dicts], [])
+        all_nodes = []
+        for dict in all_dicts:
+            if 'nodes' in dict.keys():
+                all_nodes += dict['nodes']
+            elif 'lat' in dict.keys() and 'lon' in dict.keys():
+                all_nodes.append([dict['lat'], dict['lon']])
         answer.append({'addr:street': street, 'addr:housenumber': all_dicts[0]['addr:housenumber'], 'nodes': all_nodes})
     return answer
 

@@ -6,10 +6,15 @@ from src.input_parser import InputParser
 
 def main():
     splitted_address = setup_parser(sys.argv[1:]).geocode
-    # splitted_address = ["Санкт-Петербург", "18-я", "линия", "В.О.", "63/17"]
-    splitted_address = ['Нижний', 'Новгород,', 'Ленина', '1']
+    # splitted_address = ['Санкт-Петербург,', 'Сапёрный', 'переулок,', '13', 'лит', 'Г']
+    # splitted_address = ['Санкт-Петербург', 'малый', 'проспект,', '64/39']
+    for i in range(len(splitted_address)):
+        splitted_address[i] = splitted_address[i].replace('\'', '').replace('"', '')
     print(splitted_address)
-    input_parser = InputParser(splitted_address, ' '.join(splitted_address))
+
+    #
+    # # splitted_address = ["Екатеринбург", "Баумана", "2"]
+    input_parser = InputParser(splitted_address, ' '.join(splitted_address).replace('\'', '').replace('"',''))
     city_info, initial_city, street, street_type, building = input_parser.parse()
     print(initial_city, street, building)
     city, region, south, west, north, east = city_info
@@ -19,6 +24,7 @@ def main():
         create_city_db(city, east, west, north, south)
 
     addresses = remove_duplicates(find_address(city.replace(' ', '_'), street, street_type, building))
+
     for addr in addresses:
         full_street, housenumber, lat, lon = parse_answer(addr)
         print(f'Адрес: {region}, {city}, {full_street} {housenumber}.')

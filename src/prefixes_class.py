@@ -11,8 +11,8 @@ class Prefixes:
                                        'Строение': 'cтр.', 'С': 'стр.', 'Стр': 'стр.',
                                        'корпус': 'к', 'корп': 'к', 'к': 'к',
                                        'Корпус': 'к', 'Корп': 'к', 'К': 'к',
-                                       'литера': 'Лит', 'л': 'Лит', 'лит': 'Лит',
-                                       'Литера': 'Лит', 'Л': 'Лит', 'Лит': 'Лит'}
+                                       'литера': 'Лит', 'лит': 'Лит',
+                                       'Литера': 'Лит'}
 
         self._street_replacements = {'Улица': ['Ул'], 'Проспект': ['Пр', 'Пр-кт'], 'Бульвар': ['Б-р'], 'Аллея': [],
                                      'Переулок': ['Пер'], 'Тракт': [], 'Набережная': ['Наб'], 'Линия': []}
@@ -40,3 +40,6 @@ class Prefixes:
     @property
     def city_prefixes(self):
         return self._city_prefixes
+
+    def all_prefixes(self):
+        return self._city_prefixes + self._street_prefixes + self._building_prefixes + self._building_postfixes

@@ -66,16 +66,16 @@ class Parser:
 
     def normalize_street(self, street):
         street_splited = street.split()
-        street_type = self.handle_street_parrt_normalize(street_splited[0])
+        street_type = self.handle_street_part_normalize(street_splited[0])
         if street_type:
             street_splited.remove(street_type)
         for part in street_splited:
             title_part = part.lower().title()
-            street_type = self.handle_street_parrt_normalize(title_part)
+            street_type = self.handle_street_part_normalize(title_part)
         street_name = ' '.join([x.lower().title() for x in street_splited])
         return street_name, street_type
 
-    def handle_street_parrt_normalize(self, part):
+    def handle_street_part_normalize(self, part):
         street_type = None
         if part in self.prefixes.street_replacements.keys():
             street_type = part
@@ -91,7 +91,7 @@ class Parser:
         for part in building.split():
             for key in self.prefixes.building_replacements.keys():
                 if key == part or (len(part) > len(key) and part[:len(key)] == key):
-                    part = self.prefixes.building_replacements[key] + ' '
+                    part = self.prefixes.building_replacements[key] + part[len(key):]
                     break
             result += part + ' '
         result = result.replace('  ', '')
