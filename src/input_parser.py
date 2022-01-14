@@ -24,7 +24,9 @@ class InputParser:
             for inner_part in re.split(r',', part):
                 if len(inner_part) != 0:
                     splitted = [splitted_part.lower().title() for splitted_part in inner_part.replace('.', ' ').split()]
-                    if any(splitted_part in prefixes_class.all_prefixes() for splitted_part in splitted):
+                    if any(splitted_part in prefixes_class.city_prefixes for splitted_part in splitted):
+                        pass
+                    elif any(splitted_part in prefixes_class.street_and_building_trash() for splitted_part in splitted):
                         result += splitted
                     else:
                         result.append(inner_part.lower().title())
@@ -74,13 +76,17 @@ class InputParser:
             self.find_possible_cities(cities, possible_cities_info, arg)
         possible_cities_info = list(possible_cities_info)
         possible_cities_info.sort(key=lambda x: x[1], reverse=True)
+        self.delete_duplicates_in_possible_cities(possible_cities_info)
+        return self.handle_city_choice(possible_cities_info[:3])
+
+    @staticmethod
+    def delete_duplicates_in_possible_cities(possible_cities_info):
         temp = set()
         for possible_city_info in possible_cities_info.copy()[:6]:
             if possible_city_info[0] in temp:
                 possible_cities_info.remove(possible_city_info)
             else:
                 temp.add(possible_city_info[0])
-        return self.handle_city_choice(possible_cities_info[:3])
 
     def handle_city_choice(self, possible_cities_info):
         if len(possible_cities_info) > 1:
@@ -206,24 +212,34 @@ class InputParser:
         possible_cities_info = set()
         cursor, cities = self.create_cities_and_cursor()
         for part in parts:
-            part = part.strip()
+            part = self.remove_trash_from_part(part.strip())
             if len(part) == 0:
                 continue
             found_value, city = self.try_find_city_from_word(cities, part, cursor)
             if found_value:
                 return found_value, city
-            elif len(part.split()) != 1:
+            else:
+                self.find_possible_cities(cities, possible_cities_info, part)
+            if len(part.split()) != 1:
                 args = self.make_pairs_and_triples(part.split())
                 for arg in args:
                     found_value, city = self.try_find_city_from_word(cities, arg, cursor)
                     if found_value:
                         return found_value, city
-            else:
-                self.find_possible_cities(cities, possible_cities_info, part)
+
         possible_cities_info = list(possible_cities_info)
         possible_cities_info.sort(key=lambda x: x[1], reverse=True)
+        self.delete_duplicates_in_possible_cities(possible_cities_info)
         city = self.handle_city_choice(possible_cities_info)
         return self.extract_city_data(cursor, city)
+
+    def remove_trash_from_part(self, part):
+        splitted_parts = self.normalize_parts(part.split())
+        for splitted_part in splitted_parts.copy():
+            if splitted_part in self.prefixes_class.street_and_building_trash():
+                splitted_parts.remove(splitted_part)
+
+        return ' '.join(splitted_parts)
 
     def try_find_city_from_word(self, cities, word, cursor):
         if word in cities:

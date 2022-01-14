@@ -41,5 +41,5 @@ class Prefixes:
     def city_prefixes(self):
         return self._city_prefixes
 
-    def all_prefixes(self):
-        return self._city_prefixes + self._street_prefixes + self._building_prefixes + self._building_postfixes
+    def street_and_building_trash(self):
+        return self._street_prefixes + self._building_prefixes + self._building_postfixes

@@ -15,7 +15,7 @@ class Parser:
         db = client[city.replace(' ', '_')]
         self.ways = db['ways']
         self.nodes = db['nodes']
-        self.city_file = city + '.xml'
+        self.city_file = city.replace(" ", "_") + '.xml'
         self.i = 0
         self.nodes_result = []
         self.ways_result = []
@@ -125,7 +125,3 @@ class Parser:
             if len(self.ways_result) > WAYS_COUNT:
                 self.ways.insert_many(self.ways_result)
                 self.ways_result = []
-
-
-if __name__ == '__main__':
-    Parser('Челябинск').parse()
