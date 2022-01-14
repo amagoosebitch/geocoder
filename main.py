@@ -9,7 +9,7 @@ def main():
     # splitted_address = ['Санкт-Петербург,', 'Сапёрный', 'переулок,', '13', 'лит', 'Г']
     # splitted_address = ['Санкт-Петербург', 'малый', 'проспект,', '64/39']
     for i in range(len(splitted_address)):
-        splitted_address[i] = splitted_address[i].replace('\'', '').replace('"', '')
+        splitted_address[i] = splitted_address[i].replace("'", '').replace('"', '')
 
     #
     # # splitted_address = ["Екатеринбург", "Баумана", "2"]
