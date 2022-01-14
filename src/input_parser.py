@@ -175,6 +175,7 @@ class InputParser:
         return self._handle_building_deletion_info(possible_buildings[0])
 
     def _find_street(self):
+        print(self.city)
         if len(self.dynamic_info) == 0:
             print('Неверный формат данных')
             sys.exit(-2)
