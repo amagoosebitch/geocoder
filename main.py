@@ -1,5 +1,4 @@
 import argparse
-import psutil
 from src.tools import *
 from src.input_parser import InputParser
 
@@ -7,11 +6,15 @@ from src.input_parser import InputParser
 def main():
     splitted_address = setup_parser(sys.argv[1:]).geocode
     # splitted_address = ['г.', 'Нижний', 'Новгород,', 'Ленина', '1']
+    print("до убирания кавычек")
     print(splitted_address)
     # splitted_address = ['Санкт-Петербург,', 'Сапёрный', 'переулок,', '13', 'лит', 'Г']
     # splitted_address = ['Санкт-Петербург', 'малый', 'проспект,', '64/39']
     for i in range(len(splitted_address)):
         splitted_address[i] = splitted_address[i].replace("'", '').replace('"', '')
+
+    print("после")
+    print(splitted_address)
 
     #
     # # splitted_address = ["Екатеринбург", "Баумана", "2"]
