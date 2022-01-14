@@ -24,9 +24,7 @@ class InputParser:
             for inner_part in re.split(r',', part):
                 if len(inner_part) != 0:
                     splitted = [splitted_part.lower().title() for splitted_part in inner_part.replace('.', ' ').split()]
-                    if any(splitted_part in prefixes_class.city_prefixes for splitted_part in splitted):
-                        pass
-                    elif any(splitted_part in prefixes_class.street_and_building_trash() for splitted_part in splitted):
+                    if any(splitted_part in prefixes_class.prefixes_trash() for splitted_part in splitted):
                         result += splitted
                     else:
                         result.append(inner_part.lower().title())
@@ -236,7 +234,8 @@ class InputParser:
     def remove_trash_from_part(self, part):
         splitted_parts = self.normalize_parts(part.split())
         for splitted_part in splitted_parts.copy():
-            if splitted_part in self.prefixes_class.street_and_building_trash():
+            if splitted_part in self.prefixes_class.prefixes_trash():
+                self.dynamic_info.remove(splitted_part)
                 splitted_parts.remove(splitted_part)
 
         return ' '.join(splitted_parts)
