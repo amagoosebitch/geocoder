@@ -5,24 +5,13 @@ from src.input_parser import InputParser
 
 def main():
     splitted_address = setup_parser(sys.argv[1:]).geocode
-    # splitted_address = ['Екатеринбург, Малышева 25']
-    print("до убирания кавычек")
-    print(splitted_address)
-    # splitted_address = ['Санкт-Петербург,', 'Сапёрный', 'переулок,', '13', 'лит', 'Г']
-    # splitted_address = ['Санкт-Петербург', 'малый', 'проспект,', '64/39']
     temp = []
     for i in range(len(splitted_address)):
         temp += splitted_address[i].replace("'", '').replace('"', '').split()
     splitted_address = temp
 
-    print("после")
-    print(splitted_address)
-
-    #
-    # # splitted_address = ["Екатеринбург", "Баумана", "2"]
-    input_parser = InputParser(splitted_address, ' '.join(splitted_address).replace('\'', '').replace('"',''))
+    input_parser = InputParser(splitted_address, ' '.join(splitted_address).replace("'", '').replace('"', ''))
     city_info, initial_city, street, street_type, building = input_parser.parse()
-    print(initial_city, street, building)
     city, region, south, west, north, east = city_info
 
     database_names = MongoClient('localhost', 27017).list_database_names()

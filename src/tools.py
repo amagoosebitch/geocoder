@@ -35,13 +35,12 @@ def create_city_db(city, east, west, north, south):
 def find_address(city, street, street_type, building, second_iteration=False):
     client = MongoClient('localhost', 27017)
     ways = client[city]['ways']
-    cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street': re.compile(rf'.*?{street}.*?')})
+    street_keys = ['addr:street', 'addr:street2']
     addresses = []
-    for c in cursor:
-        addresses.append(c)
-    cursor = ways.find({'addr:housenumber': f'{building}', 'addr:street2': re.compile(rf'.*?{street}.*?')})
-    for c in cursor:
-        addresses.append(c)
+    for street_key in street_keys:
+        cursor = ways.find({'addr:housenumber': f'{building}', street_key: re.compile(rf'.*?{street}.*?')})
+        for c in cursor:
+            addresses.append(c)
     if len(addresses) == 0 and not second_iteration:
         possible_street = handle_mistake_in_street(ways, street)
         if not possible_street:
@@ -63,37 +62,6 @@ def handle_mistake_in_street(ways, street):
     return possible_street
 
 
-# def handle_street_choice(bests):
-#     if len(bests) == 1:
-#         return bests[0]
-#     if len(bests) > 1:
-#         string = '\n'
-#         for num, word in enumerate(bests):
-#             string += '{}: {}\n'.format(num + 1, word[0])
-#         while True:
-#             answer = input(f'Введите номер улицы, который вы имели в виду: {string}')
-#             if answer.isdigit() and int(answer) <= len(bests):
-#                 break
-#             else:
-#                 print('Неверный формат ввода.')
-#         return bests[int(answer) - 1]
-#     return None
-
-
-def mongodb_connect():
-    config_path = Path(__file__).parent.parent / Path('config') / 'config.txt'
-    if not os.path.isfile(config_path):
-        print('Файл config.txt отсутствует. Создайте файл в папке config и впишите туда путь до mongod.exe.')
-        sys.exit(-4)
-    with open(config_path, 'r') as file:
-        mongodb_path = file.readline()
-    try:
-        os.startfile(mongodb_path)
-    except:  # windows error?
-        print('Не удалось запустить MongoDB. Убедитесь в том, что правильно указали путь до bin папки вашего MongoDB.')
-        sys.exit(-5)
-
-
 def remove_duplicates(addresses):
     answer = []
     streets = [x['addr:street'] for x in addresses]
@@ -108,31 +76,4 @@ def remove_duplicates(addresses):
                 all_nodes.append([dict['lat'], dict['lon']])
         answer.append({'addr:street': street, 'addr:housenumber': all_dicts[0]['addr:housenumber'], 'nodes': all_nodes})
     return answer
-
-
-def levenshtein_distance(first, second):
-    """работает без учёта регистра"""
-    first_string = first.lower()
-    second_string = second.lower()
-    opt = []
-    for i in range(len(first_string) + 1):
-        opt.append([0]*(len(second_string) + 1))
-
-    for i in range(len(first_string) + 1):
-        opt[i][0] = i
-
-    for i in range(len(second_string) + 1):
-        opt[0][i] = i
-
-    for i in range(1, len(first_string)+1):
-        for j in range(1, len(second_string) + 1):
-            left = opt[i-1][j]
-            up = opt[i][j-1]
-            diagonal = opt[i-1][j-1]
-            if first_string[i-1] == second_string[j-1]:
-                opt[i][j] = diagonal
-            else:
-                opt[i][j] = 1 + min(left+1, up+1, diagonal)
-
-    return opt[-1][-1]
 

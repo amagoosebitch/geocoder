@@ -1,11 +1,10 @@
-import os
 from pathlib import Path
 from xml.etree import ElementTree
 from pymongo import MongoClient
 from src.prefixes_class import Prefixes
 
-NODES_COUNT = 100 #200000
-WAYS_COUNT = 100 #100000
+NODES_COUNT = 200000
+WAYS_COUNT = 100000
 
 
 class Parser:

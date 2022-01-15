@@ -179,7 +179,6 @@ class InputParser:
         return self._handle_building_deletion_info(possible_buildings[0])
 
     def _find_street(self):
-        print(self.city, self.building)
         if len(self.dynamic_info) == 0:
             print('Неверный формат данных')
             sys.exit(-2)
@@ -228,8 +227,7 @@ class InputParser:
         possible_cities_info = list(possible_cities_info)
         possible_cities_info.sort(key=lambda x: x[1], reverse=True)
         self.delete_duplicates_in_possible_cities(possible_cities_info)
-        city = self.handle_city_choice(possible_cities_info)
-        return self.extract_city_data(cursor, city)
+        return self.extract_city_data(cursor, self.handle_city_choice(possible_cities_info))
 
     def remove_trash_from_part(self, part):
         splitted_parts = self.normalize_parts(part.split())
@@ -259,4 +257,5 @@ class InputParser:
 
     @staticmethod
     def make_pairs_and_triples(args):
-        return args + [' '.join(args[i:i+2]) for i in range(len(args)-1)] + [' '.join(args[i:i+3]) for i in range(len(args)-2)]
+        return args + [' '.join(args[i:i+2]) for i in range(len(args)-1)] + \
+               [' '.join(args[i:i+3]) for i in range(len(args)-2)]
