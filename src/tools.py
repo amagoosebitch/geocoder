@@ -76,4 +76,3 @@ def remove_duplicates(addresses):
                 all_nodes.append([dict['lat'], dict['lon']])
         answer.append({'addr:street': street, 'addr:housenumber': all_dicts[0]['addr:housenumber'], 'nodes': all_nodes})
     return answer
-

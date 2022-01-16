@@ -72,13 +72,13 @@ class InputParser:
         possible_cities_info = set()
         for arg in args:
             self.find_possible_cities(cities, possible_cities_info, arg)
-        possible_cities_info = list(possible_cities_info)
-        possible_cities_info.sort(key=lambda x: x[1], reverse=True)
         self.delete_duplicates_in_possible_cities(possible_cities_info)
         return self.handle_city_choice(possible_cities_info[:3])
 
     @staticmethod
     def delete_duplicates_in_possible_cities(possible_cities_info):
+        possible_cities_info = list(possible_cities_info)
+        possible_cities_info.sort(key=lambda x: x[1], reverse=True)
         temp = set()
         for possible_city_info in possible_cities_info.copy()[:6]:
             if possible_city_info[0] in temp:
@@ -224,8 +224,6 @@ class InputParser:
                     if found_value:
                         return found_value, city
 
-        possible_cities_info = list(possible_cities_info)
-        possible_cities_info.sort(key=lambda x: x[1], reverse=True)
         self.delete_duplicates_in_possible_cities(possible_cities_info)
         return self.extract_city_data(cursor, self.handle_city_choice(possible_cities_info))
 
