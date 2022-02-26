@@ -20,12 +20,14 @@ def download_city_xml(city, east, west, north, south):
         sys.exit(-3)
     print('Ответ получен. Скачиваем xml файл.')
     counter = 0
-    with open(Path(__file__).parent.parent / Path('xml') / f'{city.replace(" ", "_")}.xml', 'wb') as f:
+    path = Path(__file__).parent.parent / Path('xml') / f'{city.replace(" ", "_")}.xml'
+    with open(path, 'wb') as f:
         for chunk in response.iter_content(chunk_size=10 * 1024 * 1024):
             counter += 1
             if chunk:
                 if len(chunk) < 800 and counter < 2:
                     print('Кажется при обращении к overpass произошла ошибка, попробуйте еще раз немного позже')
+                    os.remove(path)
                     sys.exit(-3)
                 else:
                     f.write(chunk)
